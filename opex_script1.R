@@ -1,0 +1,6 @@
+eod_inventory=read.csv("eod_inventory.csv")
+product_details=read.csv("product_details.csv")
+product_movement=read.csv("product_movement.csv")
+str(product_details)
+str(eod_inventory)
+str(product_movement)
