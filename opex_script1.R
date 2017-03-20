@@ -23,6 +23,14 @@ product_details$material=factor(product_details$material)
 eod_inventory$material=factor(eod_inventory$material)
 product_movement$material=factor(product_movement$material)
 
+# produce movement aggregation
+library(sqldf)
+yes=sqldf("select 
+        material,location,date, move_type, sum(total_units) 
+        from product_movement
+        group by select material,location,date, move_type")
+
+
 # data structure 
 str(product_details)
 str(eod_inventory)
@@ -79,7 +87,10 @@ dim(cxcx1)
 #second merge for 
 cxcx2=merge(x=cxcx1,y=product_movement,by =c("date","material","location"),all.x=TRUE)
 str(cxcx2)
-summary(cxcx2)
+summary(product_movement)
+
+product_movement[duplicated(product_movement[,1:4]),]
+#duplicated(product_movement[,1:4]!=T)
 
 #I have to figure out why the duplicates are happenning here?
 
