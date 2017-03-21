@@ -34,7 +34,7 @@ product_movement$material=factor(product_movement$material)
 # produce movement aggregation
 head(product_movement)
 
-
+#no need
 product_movement=sqldf("select 
         material,location,date, move_type, sum(total_units) as total_units
         from product_movement
@@ -59,7 +59,7 @@ summary(product_movement)
 #min and max date in the dataset
 paste("first date in the dataset is",min(min(product_movement$date),min(eod_inventory$date)))
 paste("last date in the dataset is",max(max(product_movement$date),max(eod_inventory$date)))
-max(max(product_movement$date),max(eod_inventory$date))-min(min(product_movement$date),min(eod_inventory$date))
+max(max(product_movement$date),max(eod_inventory$date))-min(min(product_movement$date),min(eod_inventory$date))+1
 
 #every date in the data
 date.range.array=seq(as.Date("2011-11-30"), as.Date("2014-12-09"), by="days")
@@ -94,9 +94,9 @@ cxcx1=merge(x=cxcx,y=eod_inventory,by =c("date","material"),all.x=TRUE)
 cxcx1$location="Plant A"
 dim(cxcx1)
 
-# any ship to customer is negative(outflow) OW inflow
+# any ship to customer or stock transfer is negative(outflow) OW inflow
 
-product_movement$total_units=ifelse(product_movement$move_type=="Ship to Customer",-1*product_movement$total_units,product_movement$total_units)
+product_movement$total_units=ifelse(product_movement$move_type=="Goods Receipt",-1*product_movement$total_units,product_movement$total_units)
 dim(product_movement)
 product_movement=sqldf("select material,location,date, sum(total_units) as total_units
           from product_movement
@@ -104,13 +104,18 @@ product_movement=sqldf("select material,location,date, sum(total_units) as total
 dim(product_movement)
 hist(product_movement$total_units)
 
-#second merge for 
+#second merge for prduct movement
 cxcx2=merge(x=cxcx1,y=product_movement,by =c("date","material","location"),all.x=TRUE)
 
 str(cxcx2)
 dim(cxcx2)
 tail(cxcx2)
 summary(cxcx2)
+
+cxcx3=cxcx2[ order(cxcx2[,2], cxcx2[,1]), ]
+
+tail(cxcx3,10)
+
 
 # length(unique(product_movement$date))
 # length(unique(cxcx1$date))
