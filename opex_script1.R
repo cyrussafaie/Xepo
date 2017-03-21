@@ -1,3 +1,11 @@
+library(proto)
+library(RSQLite)
+library(gsubfn)
+library(sqldf)
+library(tcltk)
+
+library(sqldf)
+library(tcltk)
 
 
 # data stored 
@@ -17,18 +25,20 @@ product_movement$date=as.Date(product_movement$date, format = "%m/%d/%Y" )
 class(eod_inventory$date)
 class(product_movement$date)
 
-
+#dev.off()
 #material fix
 product_details$material=factor(product_details$material)
 eod_inventory$material=factor(eod_inventory$material)
 product_movement$material=factor(product_movement$material)
 
 # produce movement aggregation
-library(sqldf)
-yes=sqldf("select 
-        material,location,date, move_type, sum(total_units) 
+head(product_movement)
+
+
+product_movement=sqldf("select 
+        material,location,date, move_type, sum(total_units) as total_units
         from product_movement
-        group by select material,location,date, move_type")
+        group by  material,location,date, move_type")
 
 
 # data structure 
@@ -75,21 +85,55 @@ items=sort(items)
 # an ID and product naem added to the data
 cxcx=cbind.data.frame(ID=1:dim(date.array.full)[1],date=date.array.full,material=items )
 colnames(cxcx)=c("ID","date","material")
-# dim(cxcx)
-#head(cxcx)
+dim(cxcx)
+##head(cxcx)
 # dim(eod_inventory)
 
 #first merging data from eod inventory and cxcx which is combined date.
 cxcx1=merge(x=cxcx,y=eod_inventory,by =c("date","material"),all.x=TRUE)
-cxcx1$location= "Plant A"
+cxcx1$location="Plant A"
 dim(cxcx1)
+
+# any ship to customer is negative(outflow) OW inflow
+
+product_movement$total_units=ifelse(product_movement$move_type=="Ship to Customer",-1*product_movement$total_units,product_movement$total_units)
+dim(product_movement)
+product_movement=sqldf("select material,location,date, sum(total_units) as total_units
+          from product_movement
+           group by  material,location,date")
+dim(product_movement)
+hist(product_movement$total_units)
 
 #second merge for 
 cxcx2=merge(x=cxcx1,y=product_movement,by =c("date","material","location"),all.x=TRUE)
-str(cxcx2)
-summary(product_movement)
 
-product_movement[duplicated(product_movement[,1:4]),]
+str(cxcx2)
+dim(cxcx2)
+tail(cxcx2)
+summary(cxcx2)
+
+# length(unique(product_movement$date))
+# length(unique(cxcx1$date))
+# 
+# yes=product_movement
+# head(yes,20)
+# yes$total_units=ifelse(yes$move_type=="Ship to Customer",-1*yes$total_units,yes$total_units)
+# 
+# require(sqldf)
+# 
+# yes2=sqldf("select material,location,date, sum(total_units) as total_units
+#           from yes
+#           group by  material,location,date")
+# summary(yes)
+# dim(yes2)
+# dim(yes)
+# hist(yes$)
+# 
+# dim(cxcx2)
+# 
+# product_movement[duplicated(product_movement[,1:4]),]
+
+
 #duplicated(product_movement[,1:4]!=T)
 
 #I have to figure out why the duplicates are happenning here?
