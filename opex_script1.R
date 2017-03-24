@@ -7,6 +7,9 @@ library(tcltk)
 library(sqldf)
 library(tcltk)
 
+library(data.table)
+library(xts)
+
 
 # data stored 
 product_details=read.csv("product_details.csv")
@@ -116,6 +119,47 @@ cxcx3=cxcx2[ order(cxcx2[,2], cxcx2[,1]), ]
 
 tail(cxcx3,10)
 
+#  now let's impute
+cxcx4=cxcx3
+summary(cxcx4)
+head(cxcx4,30)
+dim(cxcx4)
+
+# setting na's in total unit flows equal to 0
+cxcx4$total_units[is.na(cxcx4$total_units)] <- 0
+
+# for stock units just use the rpevious row
+cxcx4[1:8,5]=0
+
+# na.imputer <- function(x) {
+#         if (length(x) > 0L) {
+#                 non.na.idx <- which(!is.na(x))
+#                 if (is.na(x[1L])) {
+#                         non.na.idx <- c(1L, non.na.idx)
+#                 }
+#                 rep.int(x[non.na.idx], diff(c(non.na.idx, length(x) + 1L)))
+#         }
+# }
+# 
+# cxcx5=cxcx4
+# library(data.table)
+# cxcx5[,newcol:=na.imputer(cxcx4$stock_units[1:100]),by=material]
+# 
+# cbind(na.imputer(cxcx4$stock_units[500:700]),cxcx4$stock_units[500:700])
+# 
+# cxcx6=cxcx5[1:100,]
+
+
+
+# replace all na values on the first date with 0 and then apply the belwo
+library(dtplyr)
+require(zoo)
+cxcx6=cxcx6 %>% group_by(material) %>% mutate(y4=zoo::na.locf(stock_units))
+
+print.data.frame(cxcx6)
+
+cxcx6=subset(cxcx4, cxcx4$date=='2011-11-30')
+(cxcx6$stock_units)
 
 # length(unique(product_movement$date))
 # length(unique(cxcx1$date))
@@ -189,6 +233,4 @@ tail(cxcx3,10)
 
 # try association rules on 
 #think about some clustering method
-
-
 
