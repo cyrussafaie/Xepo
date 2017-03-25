@@ -128,8 +128,29 @@ dim(cxcx4)
 # setting na's in total unit flows equal to 0
 cxcx4$total_units[is.na(cxcx4$total_units)] <- 0
 
+# if the first dat is non zero then put 0
+cxcx4$stock_units=ifelse(is.na(cxcx4$stock_units) & cxcx4$date=='2011-11-30',0,cxcx4$stock_units)
+#cxcx5=subset(cxcx4, cxcx4$date=='2011-11-30')
+#ifelse(is.na(cxcx6$stock_units) & cxcx6$date=='2011-11-30',0,cxcx6$stock_units)
+(cxcx5$stock_units)
+dim(cxcx4)
+# replace all na values on the first date with 0 and then apply the belwo
+library(dtplyr)
+require(zoo)
+cxcx6=cxcx4 %>% group_by(material) %>% mutate(stock_units_imputed=zoo::na.locf(stock_units))
+
+#print.data.frame(cxcx6)
+summary(cxcx6)
+print.data.frame(cxcx6[2495:2650,])
+
+# cxcx7=subset(cxcx4, cxcx4$date=='2011-11-30')
+# #ifelse(is.na(cxcx6$stock_units) & cxcx6$date=='2011-11-30',0,cxcx6$stock_units)
+# (cxcx7$stock_units)
+
+
+
 # for stock units just use the rpevious row
-cxcx4[1:8,5]=0
+
 
 # na.imputer <- function(x) {
 #         if (length(x) > 0L) {
@@ -149,17 +170,6 @@ cxcx4[1:8,5]=0
 # 
 # cxcx6=cxcx5[1:100,]
 
-
-
-# replace all na values on the first date with 0 and then apply the belwo
-library(dtplyr)
-require(zoo)
-cxcx6=cxcx6 %>% group_by(material) %>% mutate(y4=zoo::na.locf(stock_units))
-
-print.data.frame(cxcx6)
-
-cxcx6=subset(cxcx4, cxcx4$date=='2011-11-30')
-(cxcx6$stock_units)
 
 # length(unique(product_movement$date))
 # length(unique(cxcx1$date))
