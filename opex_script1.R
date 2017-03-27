@@ -233,15 +233,20 @@ df=df %>% group_by(material) %>%
         mutate(min_future_stock_units_imputed=rollapply(stock_units_imputed,list(14:27), min,fill = NA)#y -output: This formula is applying min of a rolling window for 2 to 4 weeks out. simiar formula to be applyed for other features to be engineered
                 ,cnt_stockouts_past4_wks=rollapply(stock_units_imputed,list(-28:0), function(a)sum(a==0),fill = NA) # stockout in the past 4 weeks
                 ,cnt_stockouts_past13_wks=rollapply(stock_units_imputed,list(-118:-27), function(a)sum(a==0),fill = NA) # stockout in the past 3 months prior to the last 4 weeks weeks
-                ,cnt_stockouts_all=sum(stock_units_imputed==0) # all stockouts counts on this item
+                ,cnt_stockouts_all=rollapplyr(stock_units_imputed,seq_along(stock_units_imputed), function(a)sum(a==0)) # all stockouts counts on this item
                 ,mean_flow_past4_wks=rollapply(total_units,list(-28:0), FUN=mean,fill = NA) # past 4 weeks mean flow
-                ,mean_flow_all=mean(total_units)# total mean of flow
+                ,mean_flow_all=rollapplyr(total_units, seq_along(total_units),mean)# total mean of flow
                 ,sd_flow_past4_wks=rollapply(total_units,list(-28:0), FUN=sd,fill = NA) # past 4 weeks sd of flow
-                ,sd_flow_all=sd(total_units)) # total sd of flow
+                ,sd_flow_all=rollapplyr(total_units,seq_along(total_units),sd)) # total sd of flow
+
+
+
 
 class(df)
 df=data.frame(df)
-head(df,100)
+tail(df,100)
+
+dim(df)
 
 df1=df[is.na(df)]=0
 names(df)
@@ -249,12 +254,16 @@ round(cor(df[,c(8:15)]),2)
 
 
 
+
+
+
+
 df2=df %>% group_by(material) %>%
         mutate(mean_flow=rollapplyr(total_units,seq_along(total_units),mean))
                               
 
-df1=data.frame(df1)
-df1[1100:1200,]
+df2=data.frame(df2)
+df2[1100:1200,]
 
 
 
