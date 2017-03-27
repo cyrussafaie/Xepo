@@ -208,50 +208,53 @@ dtCor$mCor=round(dtCor$mCor,2)
 ###############################
 cxcx6=data.frame(cxcx6)
 dim(cxcx6)
-cxcx6prim=cxcx6
-
 
 head(cxcx6)
-head(cxcx6prim,50)
 
 ###############################
 ###############################
 #output flag: Min EOD inventory in 2-4 weeks time frame (today+14 to today+28)
 ###############################
 ###############################
-cxcx6prim=subset(cxcx6,cxcx6$material==2)
-dim(cxcx6prim)
-
 
 ###############################
 # min of stockout in the 14-28 days out
 ###############################
-z2 <- cxcx6
-aa=as.data.frame(rollapply(z2,list(14:27), min,fill = NA)) 
-#head(aa,30)
-tail(cbind(cxcx6prim$stock_units_imputed,aa),200)
 
-names(cxcx6)
 library(dplyr)
 library(zoo)
-df=cxcx6[,c("date","material","stock_units_imputed")]
+df=cxcx6
 
 # This formula is applying min of a rolling window for 2 to 4 weeks out. simiar formula to be applyed for other features to be engineered
 # this is the output
+
+# below is the number of stockotuts in the prior 4 weeks
 df=df %>% group_by(material) %>%
-        mutate(min_future=rollapply(stock_units_imputed,list(14:27), min,fill = NA))
+        mutate(min_future_stock_units_imputed=rollapply(stock_units_imputed,list(14:27), min,fill = NA)#y -output: This formula is applying min of a rolling window for 2 to 4 weeks out. simiar formula to be applyed for other features to be engineered
+                ,cnt_stockouts_past4_wks=rollapply(stock_units_imputed,list(-28:0), function(a)sum(a==0),fill = NA) # stockout in the past 4 weeks
+                ,cnt_stockouts_past13_wks=rollapply(stock_units_imputed,list(-118:-27), function(a)sum(a==0),fill = NA) # stockout in the past 3 months prior to the last 4 weeks weeks
+                ,cnt_stockouts_all=sum(stock_units_imputed==0) # all stockouts counts on this item
+                ,mean_flow_past4_wks=rollapply(total_units,list(-28:0), FUN=mean,fill = NA) # past 4 weeks mean flow
+                ,mean_flow_all=mean(total_units)# total mean of flow
+                ,sd_flow_past4_wks=rollapply(total_units,list(-28:0), FUN=sd,fill = NA) # past 4 weeks sd of flow
+                ,sd_flow_all=sd(total_units)) # total sd of flow
+
 class(df)
 df=data.frame(df)
-head(df,50)
+head(df,100)
+
+df1=df[is.na(df)]=0
+names(df)
+round(cor(df[,c(8:15)]),2)
 
 
 
+df2=df %>% group_by(material) %>%
+        mutate(mean_flow=rollapplyr(total_units,seq_along(total_units),mean))
+                              
 
-
-
-
-
-
+df1=data.frame(df1)
+df1[1100:1200,]
 
 
 
