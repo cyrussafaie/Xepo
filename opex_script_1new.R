@@ -251,7 +251,8 @@ class(df)
 df=data.frame(df)
 head(df,100)
 #write.csv(df,"df_20170327_1505.csv",row.names = F)
-df=read.csv("df_20170327_1505.csv")
+getwd()
+df=read.csv("/Users/Cyrus/Dropbox/The University of Chicago/11. Winter 2017/StockoutPrediction -2016-selected/df_20170327_1505.csv")
 ###############################
 # date features
 ###############################
@@ -277,17 +278,25 @@ shift <- function(x, n){
         c(x[-(seq(n))], rep(NA, n))
 }
 
-df2=df1[1:2000,]
-dim(df2)
+dim(df1)
 
-df2=df2 %>% group_by(material) %>%
+df1=df1 %>% group_by(material) %>%
         mutate(lag1.stockout=shift(min_future_stock_units_imputed,1)
-               ,lag2.stockout=shift(min_future_stock_units_imputed,2))
+               ,lag2.stockout=shift(min_future_stock_units_imputed,2)
+               ,lag3.stockout=shift(min_future_stock_units_imputed,3)
+               ,mean_stockout_past2day=rollapply(min_future_stock_units_imputed,list(-1:0), FUN=mean,fill = NA)
+               ,mean_stockout_past3day=rollapply(min_future_stock_units_imputed,list(-2:0), FUN=mean,fill = NA)
+               ,mean_stockout_past7day=rollapply(min_future_stock_units_imputed,list(-6:0), FUN=mean,fill = NA)
+               ,mean_stockout_past28day=rollapply(min_future_stock_units_imputed,list(-27:0), FUN=mean,fill = NA)
+               ,sd_stockout_past2day=rollapply(min_future_stock_units_imputed,list(-1:0), FUN=sd,fill = NA)
+               ,sd_stockout_past3day=rollapply(min_future_stock_units_imputed,list(-2:0), FUN=sd,fill = NA)
+               ,sd_stockout_past7day=rollapply(min_future_stock_units_imputed,list(-6:0), FUN=sd,fill = NA)
+               ,sd_stockout_past28day=rollapply(min_future_stock_units_imputed,list(-27:0), FUN=sd,fill = NA))
         
-df2=data.frame(df2)
+df1=data.frame(df1)
 
-names(df2)
-df2[1070:1150,c(8,20,21)]
+names(df1)
+df1[1:100,c(8,20,21)]
 
 head(data.frame(df2),30)
 example$z <- shift(example$z, 2)
