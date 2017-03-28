@@ -306,8 +306,16 @@ df1=df1 %>% group_by(material) %>%
         
 df1=data.frame(df1)
 
+dim(df1)
 names(df1)
-df1[1:50,c(8,20,21)]
+head(df1)
+getwd()
+
+#write.csv(df1,"df_20170327_2312.csv",row.names = F)
+
+
+
+
 
 head(data.frame(df2),30)
 example$z <- shift(example$z, 2)
