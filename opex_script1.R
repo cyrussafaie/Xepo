@@ -301,6 +301,9 @@ dim(df)
 df1=df
 df1[is.na(df1)]=0
 names(df1)
+
+
+
 M=cor(df1[,c(8:15)])
 corrplot(M,method = "ellipse")
 
