@@ -291,12 +291,23 @@ df1=df1 %>% group_by(material) %>%
                ,sd_stockout_past2day=rollapply(min_future_stock_units_imputed,list(-1:0), FUN=sd,fill = NA)
                ,sd_stockout_past3day=rollapply(min_future_stock_units_imputed,list(-2:0), FUN=sd,fill = NA)
                ,sd_stockout_past7day=rollapply(min_future_stock_units_imputed,list(-6:0), FUN=sd,fill = NA)
-               ,sd_stockout_past28day=rollapply(min_future_stock_units_imputed,list(-27:0), FUN=sd,fill = NA))
+               ,sd_stockout_past28day=rollapply(min_future_stock_units_imputed,list(-27:0), FUN=sd,fill = NA)
+               ,min_stockout_past7day=rollapply(min_future_stock_units_imputed,list(-6:0), FUN=min,fill = NA)
+               ,max_stockout_past7day=rollapply(min_future_stock_units_imputed,list(-6:0), FUN=max,fill = NA)
+               
+               ,new_cnt_stockouts_past4_wks=rollapply(min_future_stock_units_imputed,list(-28:0), function(a)sum(a==0),fill = NA) # stockout in the past 4 weeks
+               ,new_cnt_stockouts_past13_wks=rollapply(min_future_stock_units_imputed,list(-118:-27), function(a)sum(a==0),fill = NA) # stockout in the past 3 months prior to the last 4 weeks weeks
+               ,new_cnt_stockouts_all=rollapplyr(min_future_stock_units_imputed,seq_along(min_future_stock_units_imputed), function(a)sum(a==0)) # all stockouts counts on this item
+               ,mean_stockout_past4_wks=rollapply(min_future_stock_units_imputed,list(-28:0), FUN=mean,fill = NA) # past 4 weeks stockout
+               ,mean_stockout_all=rollapplyr(min_future_stock_units_imputed, seq_along(min_future_stock_units_imputed),mean)# total mean of stockout
+               ,sd_stockout_past4_wks=rollapply(min_future_stock_units_imputed,list(-28:0), FUN=sd,fill = NA) # past 4 weeks sd of stockout
+               ,sd_stockout_all=rollapplyr(min_future_stock_units_imputed,seq_along(min_future_stock_units_imputed),sd)) # total sd of stockout
+               
         
 df1=data.frame(df1)
 
 names(df1)
-df1[1:100,c(8,20,21)]
+df1[1:50,c(8,20,21)]
 
 head(data.frame(df2),30)
 example$z <- shift(example$z, 2)
