@@ -216,7 +216,7 @@ head(cxcx6)
 
 ###############################
 ###############################
-#output flag: Min EOD inventory in 2-4 weeks time frame (today+14 to today+28)
+#feature engineering
 ###############################
 ###############################
 
@@ -231,6 +231,7 @@ df=cxcx6
 
 # This formula is applying min of a rolling window for 2 to 4 weeks out. simiar formula to be applyed for other features to be engineered
 # this is the output
+#output flag: Min EOD inventory in 2-4 weeks time frame (today+14 to today+28)
 
 ###############################
 # some rolling features
@@ -306,12 +307,21 @@ df1=df1 %>% group_by(material) %>%
         
 df1=data.frame(df1)
 
+summary(df1)
+
 dim(df1)
 names(df1)
-head(df1)
+head(df1,20)
 getwd()
 
 #write.csv(df1,"df_20170327_2312.csv",row.names = F)
+
+###############################
+# classification flag
+###############################
+df1$stockouts=ifelse(df1$min_future_stock_units_imputed>0,0,1)
+df1$stockouts=as.factor(df1$stockouts)
+str(df1)
 
 
 
