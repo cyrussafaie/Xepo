@@ -315,17 +315,44 @@ head(df1,20)
 getwd()
 
 #write.csv(df1,"df_20170327_2312.csv",row.names = F)
+#df1=read.csv("/Users/Cyrus/Dropbox/The University of Chicago/11. Winter 2017/StockoutPrediction -2016-selected/df_20170327_2312.csv")
 
 ###############################
 # classification flag
 ###############################
 df1$stockouts=ifelse(df1$min_future_stock_units_imputed>0,0,1)
 df1$stockouts=as.factor(df1$stockouts)
-str(df1)
+dim(df1)
+df1$date=as.Date(df1$date)
+#df2=df1
+
+###############################
+# 1 month from end cust as we predict in the future and beginning from 2012 cut to limit imputation
+###############################
+
+df2$date=as.Date(df2$date)
+date.filter <- function(df,x,y){df[df$date >= x & df$date <= y,]}
+DATE1 <- as.Date("2012-01-01")
+DATE2 <- as.Date("2014-11-12")
+df2 <- date.filter(df2,DATE1,DATE2)
+tail(df2)
+dim(df1)
+
+# write.csv(df2,"df_20170328_0120.csv",row.names = F)
 
 
+head(df2)
 
+  
+head(df1$date,80)
+data.sub=subset(df1,df1$material==2)
+dim(data.sub)
+str(data.sub)
+head(data.sub,70)
+tail(data.sub,30)
+summary(data.sub)
 
+plot(data.sub$stockouts)
 
 head(data.frame(df2),30)
 example$z <- shift(example$z, 2)
